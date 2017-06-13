@@ -1,0 +1,26 @@
+<div style="width: 60%; display:table; margin:0 auto;padding-top:30px"  >
+
+<div class="panel panel-default">
+  <div class="panel-heading">User Details</div>
+  <div class="panel-body">
+     <form ng-submit="$ctrl.submit()">
+
+      <div class="form-group">
+        <label for="inputName">Name</label>
+        <input type="text" class="form-control" id="inputName" placeholder="Name" 
+          ng-model="$ctrl.user.name" >
+      </div>
+
+      <div class="form-group">
+        <label for="inputEmail">Email address</label>
+        <input type="email" class="form-control" id="inputEmail" placeholder="Email" 
+          ng-model="$ctrl.user.emailAddress">
+      </div>
+      
+      <button type="submit" class="btn btn-default">Save</button>
+
+    </form>
+  </div>
+</div>
+
+</div>
