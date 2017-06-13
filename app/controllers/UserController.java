@@ -14,55 +14,79 @@ import javax.inject.Inject;
 import play.libs.Json;
 import com.fasterxml.jackson.databind.JsonNode;
 
+import services.UserService;
+import java.util.List;
+import java.util.ArrayList;
+
 /**
  * This controller contains actions to handle HTTP requests
  * coming from user management ui module
  */
 public class UserController extends Controller {
 
-    private Jongo jongo;
+    private static final String OKAY = "ok";
+    private static final String ERROR = "err";
+
+    private UserService service;
 
     @Inject
-    public UserController(Jongo jongo){
-    	this.jongo = jongo;
+    public UserController(UserService service){
+    	this.service = service;
     }
 
+    /**
+     * An action that renders and send the main/index page
+     
+     */
 	public Result index() {
 		return ok(views.html.index.render());
 	}
     /**
-     * An action that renders an HTML page with a welcome message.
-     * The configuration in the <code>routes</code> file means that
-     * this method will be called when the application receives a
-     * <code>GET</code> request with a path of <code>/</code>.
+     * An action that returns all users saved in db
+     
      */
     public Result list() {
-    	MongoCollection users = jongo.getCollection("users");
-		MongoCursor<User> all = users.find("{}").as(User.class);
+    	List<User> all = service.findAll();
         return ok(Json.toJson(all));
     }
 
+    /**
+     * An action that returns a user given an Id
+     
+     */
     public Result getUser(String userId) {
-    	MongoCollection users = jongo.getCollection("users");
-		User user = users.findOne(new ObjectId(userId)).as(User.class);
+    	User user = service.find(userId);
         return ok(Json.toJson(user));
     }
 
+    /**
+     * An action that insert or update a user.
+     
+     */
     @BodyParser.Of(BodyParser.Json.class)
     public Result save() {
-    	JsonNode json = request().body().asJson(); 
-    	if ( json != null){
-    		User user = Json.fromJson(json, User.class);
-    		MongoCollection users = jongo.getCollection("users");
-    		if(user.getId() == null){
-	    		users.insert(user);
-    		}
-    		else{
-    			users.update(new ObjectId(user.getId())).with(user);
-    		}
-    	}
-
-        return ok("ok");
+        String result = OKAY;
+    	try{
+        	JsonNode json = request().body().asJson(); 
+        	if ( json != null){
+        		User user = Json.fromJson(json, User.class);
+        		if(user.getId() == null){
+    	    		service.insert(user);
+        		}
+        		else{
+        			service.update(user);
+        		}
+        	}
+            else{
+                result = ERROR;
+            }
+        }
+        catch(Exception ex){
+            //TODO replace with Logger later
+            ex.printStackTrace();
+            result = ERROR;
+        }
+        return ok(result);
     }
 
 
