@@ -17,6 +17,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import services.UserService;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
  * This controller contains actions to handle HTTP requests
@@ -66,10 +68,13 @@ public class UserController extends Controller {
     @BodyParser.Of(BodyParser.Json.class)
     public Result save() {
         String result = OKAY;
+        String msg = "";
     	try{
         	JsonNode json = request().body().asJson(); 
         	if ( json != null){
         		User user = Json.fromJson(json, User.class);
+                //** We can have something more generic or Use a framework validator.
+                msg = validate(user);
         		if(user.getId() == null){
     	    		service.insert(user);
         		}
@@ -86,8 +91,44 @@ public class UserController extends Controller {
             ex.printStackTrace();
             result = ERROR;
         }
-        return ok(result);
+        return ok(message(result,msg));
+    }
+
+  /**
+     * An action that deletes a user given an Id
+     
+     */
+    public Result delete(String userId) {
+        String result = OKAY;
+        try{
+            service.delete(userId);
+        }
+        catch(Exception ex){
+            result = ERROR;
+        }
+        return ok(message(result));
     }
 
 
+
+    // All this below can be moved to another package.
+    private static String validate(User user){
+        String msg = "";
+        //TODO we can plug another validator framework.
+        if ( user.getEmailAddress().indexOf("@") < 0){ 
+            msg = "Wrong Email Address";
+        }
+        return msg;
+    }
+
+    private static JsonNode message(String result, String msg){
+        Map<String, String> map = new HashMap<String,String>();
+        map.put("result", result);
+        map.put("msg",msg);
+        return Json.toJson(map);
+    } 
+
+    private static JsonNode message(String result){
+      return message(result,"");
+    } 
 }

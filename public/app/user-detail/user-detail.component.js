@@ -7,10 +7,22 @@ angular.
         
         var self = this;
         self.submit = function submit(){
-        	$http.post('users',self.user).then(function(response) {
-	            self.saveOkay = response.data;
-	            alert("cofirmation:"+self.saveOkay);
-	         });
+        	$http.post('users',self.user).then(
+	        	function(response) {
+		            self.saveOkay = response.data.result == "ok";
+		            //We can use saveOkay to show a nice msg to user.
+		            //for later.
+		            if (self.saveOkay){
+		            	alert("User Saved Successfully!!!");
+		        	}
+		        	else{
+		        		alert("Error saving user"+ response.data.msg);
+		        	}
+		         },
+                function (error){
+                   alert("Fatal Error. Please contact Administrator");
+                }
+	         );
         };
 
         this.userId = $routeParams.userId;
@@ -19,9 +31,14 @@ angular.
         }
         else{
 
-        	$http.get('users/'+this.userId).then(function(response) {
-	            self.user = response.data;
-	         });
+        	$http.get('users/'+this.userId).then(
+	        	 function(response) {
+		            self.user = response.data;
+		         },
+                function (error){
+                   alert("Fatal Error. Please contact Administrator");
+                }
+	         );
         	//this.user = {_id:this.userId,name:this.userId,email:this.userId};
         }
 

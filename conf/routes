@@ -8,6 +8,7 @@ GET     /users.html                 controllers.UserController.index
 GET     /users                      controllers.UserController.list
 GET     /users/:userId              controllers.UserController.getUser(userId:String)
 POST    /users                      controllers.UserController.save
+DELETE  /users/:userId              controllers.UserController.delete(userId:String)
 
 
 # Map static resources from the /public folder to the /assets URL path

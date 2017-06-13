@@ -15,23 +15,42 @@ angular.
             self.selectedUserId = userId;
           };
 
-          $http.get('users').then(function(response) {
-            self.users = response.data;
-          });
+          self.loadModel = function loadModel(){
+            $http.get('users').then(
+              function(response) {
+              self.users = response.data;
+              },
+              function (error){
+                 alert("Fatal Error. Please contact Administrator");
+              }
+            );
+          };
+          
+          self.remove = function remove(){
+
+            var r = confirm("Are you sure you want delete user?");
+
+            if (r == true) {
+              $http.delete('users/'+this.selectedUserId).then(
+                function(response) {
+                  var data = response.data;
+                  if (data.result == "ok"){
+                    self.loadModel();  
+                  }
+                  else{
+                    alert("Error Deleting User");
+                  }
+                },
+                function (error){
+                   alert("Fatal Error. Please contact Administrator");
+                }
+              );
+            }
+            
+          };
+
+          self.loadModel();
         }
       ]
-
-     /* this.users = [
-        {
-          id:"1",
-          name: 'Javier Espinoza',
-          email: 'jespinoza73@gmail.com'
-        },
-        {
-          id:"2",
-          name: 'Gisselle Cornejo',
-          email: 'gisselle.cornejo@gmail.com'
-        }
-      ];*/
 
   });
